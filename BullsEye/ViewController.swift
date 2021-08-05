@@ -16,11 +16,7 @@ class ViewController: UIViewController {
     
     var targetValue = 0
     var currentValue = 0
-    var score = 0 {
-        didSet {
-            scoreLabel.text = String(score)
-        }
-    }
+    var score = 0
     var round = 0 {
         didSet {
             roundLabel.text = String(round)
@@ -29,6 +25,12 @@ class ViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        startNewGame()
+    }
+    
+    func startNewGame() {
+        round = 0
+        score = 0
         startNewRound()
     }
     
@@ -38,37 +40,53 @@ class ViewController: UIViewController {
         currentValue = 50
         slider.value = Float(currentValue)
         
-            updateLabels()
+        updateLabels()
     }
     
     func updateLabels() {
         targetLabel.text = String(targetValue)
+        scoreLabel.text = String(score)
     }
 
     @IBAction func showAlert() {
         let difference = abs(currentValue - targetValue)
-        let points = 100 - difference
+        var points = 100 - difference
         
+        var title: String
+        switch difference {
+        case 0:
+            title = "Perfect"
+            points += 100
+        case 1...5:
+            title = "You almost had it!"
+            points += 50
+        case 6...10:
+            title = "Pretty Good!"
+        default:
+            title = "Not even close..."
+        }
+
         score += points
         
         let message = "You scored \(points) points"
         
-        let alert = UIAlertController(title: "Hello World!",
+        let alert = UIAlertController(title: title,
                                       message: message,
                                       preferredStyle: .alert)
         
-        let action = UIAlertAction(title: "Ok",
-                                   style: .default,
-                                   handler: nil)
+        let action = UIAlertAction(title: "Ok", style: .default) { [unowned self] _ in
+            self.startNewRound()
+        }
         
         alert.addAction(action)
         present(alert, animated: true, completion: nil)
-        
-        startNewRound()
     }
     
     @IBAction func sliderMoved(_ slider: UISlider) {
         currentValue = lroundf(slider.value)
     }
+    
+    @IBAction func startOver() {
+        startNewGame()
+    }
 }
-
